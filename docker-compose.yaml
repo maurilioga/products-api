@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: products-api-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products-api
+    volumes:
+      - products_api_postgres_data:/var/lib/postgresql
+    restart: always
+    networks:
+      - products-api-network
+
+  app:
+    build: .
+    container_name: products-api-spring
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/products-api
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      TZ: America/Sao_Paulo
+    ports:
+      - "8080:8080"
+    networks:
+      - products-api-network
+
+volumes:
+  products_api_postgres_data:
+
+networks:
+  products-api-network:
+    driver: bridge
